@@ -1,5 +1,5 @@
 const path = require('path');
-const { runQunitPuppeteer } = require('../index');
+const { runQunitPuppeteer, printOutput } = require('../index');
 
 const qunitArgs = {
   targetUrl: `file:${path.join(__dirname, 'test-runner.html')}`,
@@ -8,5 +8,13 @@ const qunitArgs = {
 };
 
 runQunitPuppeteer(qunitArgs)
-  .then((result) => { console.log(JSON.stringify(result, 0, 2)); })
-  .catch((ex) => { console.error(ex); });
+  .then((result) => {
+    // Print the test result to the output
+    printOutput(result, console);
+    if (result.failed > 0) {
+      // Handle the failed test run
+    }
+  })
+  .catch((ex) => {
+    console.error(ex);
+  });

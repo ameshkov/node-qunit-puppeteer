@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const colors = require('colors');
 
 const DEFAULT_TIMEOUT = 30000;
 const CALLBACKS_PREFIX = 'qunit_puppeteer_runner';
@@ -232,4 +233,57 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
   }
 }
 
+/**
+ * Takes the output of runQunitPuppeteer and prints it to console with identation and colors
+ * @param {*} result result of the runQunitPuppeteer
+ */
+function printOutput(result, console) {
+  if (result.stats.failed === 0) {
+    console.log('Test run result: success'.green.bold);
+  } else {
+    console.log('Test run result: fail'.red.bold);
+  }
+
+  console.group(`Total tests: ${result.totalTests}`);
+  console.log(`Assertions: ${result.stats.total}`);
+  console.log(`Passed assertions: ${result.stats.passed.toString().green}`);
+  console.log(`Failed assertions: ${result.stats.failed > 0 ? result.stats.failed.toString().red : result.stats.failed}`);
+  console.log(`Elapsed: ${result.stats.runtime}ms`);
+  console.groupEnd();
+
+  const moduleNames = Object.keys(result.modules);
+  for (let i = 0; i < moduleNames.length; i += 1) {
+    const module = result.modules[moduleNames[i]];
+    console.group(`Module: ${module.name}`);
+
+    for (let j = 0; j < module.tests.length; j += 1) {
+      const test = module.tests[j];
+      console.group(`${test.name}`);
+      if (test.failed > 0) {
+        console.log('Status: failed'.red.bold);
+      } else {
+        console.log('Status: success'.green.bold);
+      }
+      console.log(`Passed assertions: ${test.passed} of ${test.total}`);
+      console.log(`Elapsed: ${test.runtime}ms`);
+
+      if (test.failed > 0) {
+        if (test.log) {
+          console.group('Log');
+          for (let n = 0; n < test.log.length; n += 1) {
+            const logRecord = test.log[n];
+            console.log(`Result: ${logRecord.result}, Expected: ${logRecord.expected}, Actual: ${logRecord.actual}, Message: ${logRecord.message}`);
+          }
+          console.groupEnd();
+        }
+      }
+
+      console.groupEnd();
+    }
+
+    console.groupEnd();
+  }
+}
+
 module.exports.runQunitPuppeteer = runQunitPuppeteer;
+module.exports.printOutput = printOutput;

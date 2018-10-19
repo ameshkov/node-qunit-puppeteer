@@ -13,7 +13,7 @@ There is a common issue with PhantomJS failing with ES6 code, and the logical so
 
 ```javascript
 const path = require('path');
-const { runQunitPuppeteer } = require('node-qunit-puppeteer');
+const { runQunitPuppeteer, printOutput } = require('node-qunit-puppeteer');
 
 const qunitArgs = {
   // Path to qunit tests suite
@@ -25,13 +25,23 @@ const qunitArgs = {
 };
 
 runQunitPuppeteer(qunitArgs)
-    // Test run result (see the example below)
-    .then((result) => { console.log(JSON.stringify(result, 0, 2)); })
-    // Failed to run the tests
-    .catch((ex) => { console.error(ex); });
+  .then((result) => {
+    // Print the test result to the output
+    printOutput(result, console);
+    if (result.failed > 0) {
+      // Handle the failed test run
+    }
+  })
+  .catch((ex) => {
+    console.error(ex);
+  });
 ```
 
-Here's an example what you'll get in the output:
+Here's what is printed to the output:
+<img width="499" style="border: 1px solid #efefef" src="https://user-images.githubusercontent.com/5947035/47224776-0888c800-d3c5-11e8-9364-6d6f1d4b3bd1.png">
+
+
+Here's how the `result` object looks like:
 ```json
 {
   "modules": {
