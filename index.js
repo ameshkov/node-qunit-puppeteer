@@ -75,6 +75,7 @@ async function exposeCallbacks(page) {
   await page.exposeFunction(DONE_CB, (context) => {
     try {
       result.stats = deepClone(context);
+      deferred.resolve(result);
     } catch (ex) {
       deferred.reject(ex);
     }
@@ -86,7 +87,6 @@ async function exposeCallbacks(page) {
       const module = result.modules[test.module];
       const currentTest = module.tests.find(t => t.name === test.name);
       Object.assign(currentTest, test);
-      deferred.resolve(result);
     } catch (ex) {
       deferred.reject(ex);
     }
