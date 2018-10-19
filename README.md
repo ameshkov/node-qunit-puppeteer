@@ -65,7 +65,7 @@ Here's an example what you'll get in the output:
               "actual": true,
               "testId": "49b931ed",
               "negative": false,
-              "runtime": 1,
+              "runtime": 2,
               "todo": false,
               "expected": true
             }
@@ -75,7 +75,7 @@ Here's an example what you'll get in the output:
           "failed": 0,
           "passed": 2,
           "total": 2,
-          "runtime": 2,
+          "runtime": 3,
           "assertions": [
             {
               "result": true,
@@ -157,7 +157,7 @@ Here's an example what you'll get in the output:
           "failed": 1,
           "passed": 0,
           "total": 1,
-          "runtime": 0,
+          "runtime": 1,
           "assertions": [
             {
               "result": false,
@@ -169,10 +169,16 @@ Here's an example what you'll get in the output:
       ],
       "failed": 1,
       "passed": 1,
-      "runtime": 1,
+      "runtime": 2,
       "total": 2
     }
   },
-  "totalTests": 3
+  "totalTests": 3,
+  "stats": {
+    "passed": 3,
+    "failed": 1,
+    "total": 4,
+    "runtime": 35
+  }
 }
 ```
