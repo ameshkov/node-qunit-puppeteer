@@ -38,6 +38,7 @@ runQunitPuppeteer(qunitArgs)
 ```
 
 Here's what is printed to the output:
+
 <img width="499" style="border: 1px solid #efefef" src="https://user-images.githubusercontent.com/5947035/47224776-0888c800-d3c5-11e8-9364-6d6f1d4b3bd1.png">
 
 
