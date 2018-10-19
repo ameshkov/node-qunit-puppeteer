@@ -272,7 +272,8 @@ function printOutput(result, console) {
           console.group('Log');
           for (let n = 0; n < test.log.length; n += 1) {
             const logRecord = test.log[n];
-            console.log(`Result: ${logRecord.result}, Expected: ${logRecord.expected}, Actual: ${logRecord.actual}, Message: ${logRecord.message}`);
+            const message = `Result: ${logRecord.result}, Expected: ${logRecord.expected}, Actual: ${logRecord.actual}, Message: ${logRecord.message}`;
+            console.log(logRecord.result ? message.green : message.red);
           }
           console.groupEnd();
         }
