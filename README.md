@@ -17,7 +17,7 @@ const { runQunitPuppeteer, printOutput } = require('node-qunit-puppeteer');
 
 const qunitArgs = {
   // Path to qunit tests suite
-  targetUrl: `file:${path.join(__dirname, 'tests.html')}`,
+  targetUrl: `file://${path.join(__dirname, 'tests.html')}`,
   // (optional, 30000 by default) global timeout for the tests suite
   timeout: 10000,
   // (optional, false by default) should the browser console be redirected or not
@@ -28,7 +28,7 @@ runQunitPuppeteer(qunitArgs)
   .then((result) => {
     // Print the test result to the output
     printOutput(result, console);
-    if (result.failed > 0) {
+    if (result.stats.failed > 0) {
       // Handle the failed test run
     }
   })
