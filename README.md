@@ -1,6 +1,8 @@
 # QUnit Puppeteer Runner Plugin
 
-A simple node module for running qunit tests with headless Chromium.
+> A simple node module for running qunit tests with [headless Chromium](https://github.com/GoogleChrome/puppeteer).
+
+There is a common issue with PhantomJS failing with ES6 code, and the logical solution is to use Chrome Puppeteer instead.
 
 ## Installation
 
