@@ -72,6 +72,14 @@ async function exposeCallbacks(page) {
     }
   });
 
+  await page.exposeFunction(DONE_CB, (context) => {
+    try {
+      result.stats = deepClone(context);
+    } catch (ex) {
+      deferred.reject(ex);
+    }
+  });
+
   await page.exposeFunction(TEST_DONE_CB, (context) => {
     try {
       const test = deepClone(context);
