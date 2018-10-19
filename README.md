@@ -86,7 +86,7 @@ Here's an example what you'll get in the output:
               "message": "Passed 2!"
             }
           ],
-          "source": "    at file:///Users/ameshkov/Documents/Work/github.com/qunit-puppeteer-runner/test/test-runner.html:17:11"
+          "source": "    at file:///Users/..../test-runner.html:17:11"
         }
       ],
       "failed": 0,
@@ -129,7 +129,7 @@ Here's an example what you'll get in the output:
               "message": "Passed 1!"
             }
           ],
-          "source": "    at file:///Users/ameshkov/Documents/Work/github.com/qunit-puppeteer-runner/test/test-runner.html:23:11"
+          "source": "    at file:///Users/..../test-runner.html:23:11"
         },
         {
           "name": "module 2 failed test 1",
@@ -149,7 +149,7 @@ Here's an example what you'll get in the output:
               "runtime": 0,
               "todo": false,
               "expected": true,
-              "source": "    at Object.<anonymous> (file:///Users/ameshkov/Documents/Work/github.com/qunit-puppeteer-runner/test/test-runner.html:28:14)"
+              "source": "    at Object.<anonymous> (file:///Users/..../test-runner.html:28:14)"
             }
           ],
           "skipped": false,
@@ -164,7 +164,7 @@ Here's an example what you'll get in the output:
               "message": "Passed 1!"
             }
           ],
-          "source": "    at file:///Users/ameshkov/Documents/Work/github.com/qunit-puppeteer-runner/test/test-runner.html:27:11"
+          "source": "    at file:///Users/..../test-runner.html:27:11"
         }
       ],
       "failed": 1,
