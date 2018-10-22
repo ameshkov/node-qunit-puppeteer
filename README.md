@@ -1,4 +1,6 @@
-# QUnit Puppeteer Runner Plugin
+# Node QUnit Puppeteer Plugin
+
+[![NPM](https://nodei.co/npm/node-qunit-puppeteer.png?compact=true)](https://nodei.co/npm/node-qunit-puppeteer/)
 
 > A simple node module for running qunit tests with [headless Chromium](https://github.com/GoogleChrome/puppeteer).
 
