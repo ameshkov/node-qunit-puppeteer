@@ -6,12 +6,22 @@
 
 There is a common issue with PhantomJS failing with ES6 code, and the logical solution is to use Chrome Puppeteer instead.
 
-## Installation
+## Usage
+
+### Command-line utility
+
+```
+npm install -g node-qunit-puppeteer
+node-qunit-puppeteer <URL> <timeout>
+```
+
+* `<URL>` - the address (or filepath) of the qunit test page
+* `<timeout>` - (optional) test run timeout in milliseconds
+
+### Node module
 
 * npm: `npm install node-qunit-puppeteer --save-dev`
 * yarn: `yarn add node-qunit-puppeteer --dev`
-
-## Usage
 
 ```javascript
 const path = require('path');
@@ -39,10 +49,11 @@ runQunitPuppeteer(qunitArgs)
   });
 ```
 
+### Output
+
 Here's what is printed to the output:
 
 <img width="499" style="border: 1px solid #efefef" src="https://user-images.githubusercontent.com/5947035/47224776-0888c800-d3c5-11e8-9364-6d6f1d4b3bd1.png">
-
 
 Here's how the `result` object looks like:
 ```json
