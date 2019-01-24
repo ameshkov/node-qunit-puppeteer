@@ -30,6 +30,8 @@ node-qunit-puppeteer <URL> <timeout>
 * `function printResultSummary(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints a summary to console with identation and colors.
 * `function printFailedTests(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints failed test(s) information to console with identation and colors.
 
+### Examples
+
 ```javascript
 const path = require('path');
 const { runQunitPuppeteer, printOutput } = require('node-qunit-puppeteer');
