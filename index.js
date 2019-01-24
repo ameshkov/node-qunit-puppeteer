@@ -286,5 +286,89 @@ function printOutput(result, console) {
   }
 }
 
+
+/**
+ * Takes the output of runQunitPuppeteer and prints a summary to console with identation and colors
+ * @param {*} result result of the runQunitPuppeteer
+ */
+function printResultSummary(result, console) {
+  console.log();
+
+  if (result.stats.failed === 0) {
+    console.log('Test run result: success'.green.bold);
+  } else {
+    console.log('Test run result: fail'.red.bold);
+  }
+
+  console.group(`Total tests: ${result.totalTests}`);
+  console.log(`Assertions: ${result.stats.total}`);
+  console.log(`Passed assertions: ${result.stats.passed.toString().green}`);
+  console.log(`Failed assertions: ${result.stats.failed > 0 ? result.stats.failed.toString().red : result.stats.failed}`);
+  console.log(`Elapsed: ${result.stats.runtime}ms`);
+  console.groupEnd();
+}
+
+
+/**
+ * Takes the output of runQunitPuppeteer and prints failed test(s) information to console with identation and colors
+ * @param {*} result result of the runQunitPuppeteer
+ */
+function printFailedTests(result) {
+  // there is nothing to see here . . . move along, move along
+  if (result.stats.failed === 0) {
+    return;
+  }
+
+  // Why is "result.modules" an object instead of an array?
+  const moduleNames = Object.keys(result.modules);
+
+  const moduleCount = moduleNames.length;
+  for (let i = 0; i < moduleCount; i += 1) {
+    const module = result.modules[moduleNames[i]];
+
+    // there is nothing to see here . . . move along, move along
+    if (module.failed === 0) {
+      continue;
+    }
+
+    //console.log();
+    console.group(`Module: ${module.name}`);
+
+    const testCount = module.tests.length;
+    for (let j = 0; j < testCount; j += 1) {
+      const test = module.tests[j];
+
+      // there is nothing to see here . . . move along, move along
+      if (test.failed === 0) {
+        continue;
+      }
+
+      console.group(`Test: ${test.name}`);
+      console.log('Status: failed'.red.bold);
+      console.log(`Failed assertions: ${test.failed} of ${test.total}`);
+      console.log(`Elapsed: ${test.runtime}ms`);
+
+      if (test.log) {
+        console.group('Log');
+
+        const logCount = test.log.length;
+        for (let n = 0; n < logCount; n += 1) {
+          const logRecord = test.log[n];
+          const message = `Result: ${logRecord.result}, Expected: ${logRecord.expected}, Actual: ${logRecord.actual}, Message: ${logRecord.message}`;
+          console.log(logRecord.result ? message.green : message.red);
+        }
+
+        console.groupEnd();
+      }
+
+      console.groupEnd();
+    }
+
+    console.groupEnd();
+  }
+}
+
 module.exports.runQunitPuppeteer = runQunitPuppeteer;
 module.exports.printOutput = printOutput;
+module.exports.printResultSummary = printResultSummary;
+module.exports.printFailedTests = printFailedTests;
