@@ -42,7 +42,7 @@ const qunitArgs = {
   // (optional, 30000 by default) global timeout for the tests suite
   timeout: 10000,
   // (optional, false by default) should the browser console be redirected or not
-  redirectConsole: true,
+  redirectConsole: true
 };
 
 runQunitPuppeteer(qunitArgs)
@@ -68,15 +68,15 @@ const qunitArgs = {
   // (optional, 30000 by default) global timeout for the tests suite
   timeout: 10000,
   // (optional, false by default) should the browser console be redirected or not
-  redirectConsole: true,
+  redirectConsole: true
 };
 
 runQunitPuppeteer(qunitArgs)
   .then((result) => {
-    printResultSummary(result);
+    printResultSummary(result, console);
 
     if (result.stats.failed > 0) {
-      printFailedTests(result);
+      printFailedTests(result, console);
     }
   })
   .catch((ex) => {
