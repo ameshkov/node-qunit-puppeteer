@@ -313,7 +313,7 @@ function printResultSummary(result, console) {
  * Takes the output of runQunitPuppeteer and prints failed test(s) information to console with identation and colors
  * @param {*} result result of the runQunitPuppeteer
  */
-function printFailedTests(result) {
+function printFailedTests(result, console) {
   // there is nothing to see here . . . move along, move along
   if (result.stats.failed === 0) {
     return;

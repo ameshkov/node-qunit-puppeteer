@@ -73,10 +73,10 @@ const qunitArgs = {
 
 runQunitPuppeteer(qunitArgs)
   .then((result) => {
-    printResultSummary(result);
+    printResultSummary(result, console);
 
     if (result.stats.failed > 0) {
-      printFailedTests(result);
+      printFailedTests(result, console);
     }
   })
   .catch((ex) => {
