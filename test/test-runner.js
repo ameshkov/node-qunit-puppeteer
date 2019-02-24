@@ -4,7 +4,7 @@ const { runQunitPuppeteer, printOutput, printResultSummary, printFailedTests } =
 const qunitArgs = {
   targetUrl: `file://${path.join(__dirname, 'test-runner.html')}`,
   timeout: 10000,
-  redirectConsole: true
+  redirectConsole: true,
 };
 
 runQunitPuppeteer(qunitArgs)

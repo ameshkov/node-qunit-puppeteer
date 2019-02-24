@@ -12,11 +12,15 @@ There is a common issue with PhantomJS failing with ES6 code, and the logical so
 
 ```
 npm install -g node-qunit-puppeteer
-node-qunit-puppeteer <URL> <timeout>
+node-qunit-puppeteer <URL> [<timeout>] [<puppeteerArgs>]
 ```
 
-* `<URL>` - the address (or filepath) of the qunit test page
-* `<timeout>` - (optional) test run timeout in milliseconds
+* `<URL>` - the address (or filepath) of the qunit test page.
+* `<timeout>` - (optional) test run timeout in milliseconds. Default is 30000.
+* `<puppeteerArgs>` - (optional) Chrome command-line arguments. Default is "--allow-file-access-from-files".
+
+**Example:**
+`node-qunit-puppeteer https://example.org/ 10000 "--allow-file-access-from-files --no-sandbox"`
 
 ### Node module
 
@@ -42,7 +46,9 @@ const qunitArgs = {
   // (optional, 30000 by default) global timeout for the tests suite
   timeout: 10000,
   // (optional, false by default) should the browser console be redirected or not
-  redirectConsole: true
+  redirectConsole: true,
+  // (optional, ['--allow-file-access-from-files'] by default) Chrome command-line arguments
+  puppeteerArgs: ['--allow-file-access-from-files'],
 };
 
 runQunitPuppeteer(qunitArgs)
