@@ -17,6 +17,7 @@ const DONE_CB = `${CALLBACKS_PREFIX}_done`;
   @property {string} targetUrl URL or a path to the HTML file with QUnit tests
   @property {number} timeout - maximum timeout (optional, default = 30 seconds)
   @property {boolean} redirectConsole - if true -- redirects the page console to the output
+  @property {string} puppeteerArgs puppeteer Chrome command-line arguments
  */
 
 /**
@@ -149,7 +150,8 @@ async function exposeCallbacks(page) {
 async function runQunitPuppeteer(qunitPuppeteerArgs) {
   const timeout = qunitPuppeteerArgs.timeout || DEFAULT_TIMEOUT;
 
-  const args = { args: ['--allow-file-access-from-files'] };
+  const puppeteerArgs = qunitPuppeteerArgs.puppeteerArgs || ['--allow-file-access-from-files'];
+  const args = { args: puppeteerArgs };
   const browser = await puppeteer.launch(args);
 
   try {

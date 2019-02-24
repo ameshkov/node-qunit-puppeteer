@@ -6,8 +6,8 @@ const { runQunitPuppeteer, printOutput } = require('./index');
 const Console = console;
 const args = process.argv.slice(2);
 
-if (args.length < 1 || args.length > 2) {
-  Console.log('Usage: node-qunit-puppeteer <URL> <timeout>');
+if (args.length < 1 || args.length > 3) {
+  Console.log('Usage: node-qunit-puppeteer <URL> [<timeout>] [<puppeteerArgs>]');
   process.exit(1);
 }
 
@@ -30,6 +30,15 @@ const qunitArgs = {
 };
 
 Console.log(`Target URL is ${qunitArgs.targetUrl}, timeout is ${qunitArgs.timeout}`);
+
+const puppeteerArgsStr = args[2];
+if (typeof puppeteerArgsStr === 'string') {
+  const puppeteerArgs = puppeteerArgsStr.split(/(\s+)/).filter(s => s.trim().length > 0);
+  if (args.length > 0) {
+    qunitArgs.puppeteerArgs = puppeteerArgs;
+    Console.log(`Puppeteer args are: ${puppeteerArgs.join(' ')}`);
+  }
+}
 
 runQunitPuppeteer(qunitArgs)
   .then((result) => {

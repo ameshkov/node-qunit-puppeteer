@@ -9,6 +9,17 @@
             "request": "launch",
             "name": "Run Test",
             "program": "${workspaceFolder}/test/test-runner.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Run Cli",
+            "program": "${workspaceFolder}/cli.js",
+            "args": [
+                "${workspaceFolder}/test/test-runner.html",
+                "30000",
+                "--allow-file-access-from-files --no-sandbox"
+            ]
         }
     ]
 }
