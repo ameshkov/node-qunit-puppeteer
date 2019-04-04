@@ -300,7 +300,7 @@ function printResultSummary(result, console) {
  * Takes the output of runQunitPuppeteer and prints failed test(s) information to console with identation and colors
  * @param {*} result result of the runQunitPuppeteer
  */
-function printFailedTests(result, console) {
+function printFailedTests(result, console, showStacktrace) {
   // there is nothing to see here . . . move along, move along
   if (result.stats.failed === 0) {
     return;
@@ -316,7 +316,7 @@ function printFailedTests(result, console) {
       continue;
     }
 
-    //console.log();
+    // console.log();
     console.group(`Module: ${module.name}`);
 
     const testCount = module.tests.length;
@@ -334,7 +334,7 @@ function printFailedTests(result, console) {
       console.log(`Elapsed: ${test.runtime}ms`);
 
       if (test.log) {
-        printTestLog(test.log, console);
+        printTestLog(test.log, console, showStacktrace);
       }
 
       console.groupEnd();
@@ -348,7 +348,7 @@ function printFailedTests(result, console) {
  * Takes the test's log output and prints the information to console with identation and colors
  * @param {*} log log of the test
  */
-function printTestLog(log, console) {
+function printTestLog(log, console, showStacktrace = false) {
   console.group('Log');
 
   const logCount = log.length;
@@ -356,6 +356,9 @@ function printTestLog(log, console) {
     const logRecord = log[n];
     const message = `Result: ${logRecord.result}, Expected: ${logRecord.expected}, Actual: ${logRecord.actual}, Message: ${logRecord.message}`;
     console.log(logRecord.result ? message.green : message.red);
+    if (!logRecord.result && showStacktrace) {
+      console.log(`Stacktrace: ${logRecord.source.trim()}`.dim);
+    }
   }
 
   console.groupEnd();

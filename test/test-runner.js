@@ -1,5 +1,7 @@
 const path = require('path');
-const { runQunitPuppeteer, printOutput, printResultSummary, printFailedTests } = require('../index');
+const {
+  runQunitPuppeteer, printOutput, printResultSummary, printFailedTests,
+} = require('../index');
 
 const qunitArgs = {
   targetUrl: `file://${path.join(__dirname, 'test-runner.html')}`,
@@ -21,6 +23,9 @@ runQunitPuppeteer(qunitArgs)
       console.log();
       console.log('==========  printFailedTests  =========='.blue.bold);
       printFailedTests(result, console);
+      console.log();
+      console.log('==========  printFailedTests with stacktrace  =========='.blue.bold);
+      printFailedTests(result, console, true);
     }
   })
   .catch((ex) => {
