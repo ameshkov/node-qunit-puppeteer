@@ -236,7 +236,7 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
 }
 
 /**
- * Takes the output of runQunitPuppeteer and prints it to console with identation and colors
+ * Takes the output of runQunitPuppeteer and prints it to console with indentation and colors
  * @param {*} result result of the runQunitPuppeteer
  */
 function printOutput(result, console) {
@@ -275,7 +275,7 @@ function printOutput(result, console) {
 
 
 /**
- * Takes the output of runQunitPuppeteer and prints a summary to console with identation and colors
+ * Takes the output of runQunitPuppeteer and prints a summary to console with indentation and colors
  * @param {*} result result of the runQunitPuppeteer
  */
 function printResultSummary(result, console) {
@@ -297,7 +297,7 @@ function printResultSummary(result, console) {
 
 
 /**
- * Takes the output of runQunitPuppeteer and prints failed test(s) information to console with identation and colors
+ * Takes the output of runQunitPuppeteer and prints failed test(s) information to console with indentation and colors
  * @param {*} result result of the runQunitPuppeteer
  */
 function printFailedTests(result, console) {
@@ -316,7 +316,7 @@ function printFailedTests(result, console) {
       continue;
     }
 
-    //console.log();
+    // console.log();
     console.group(`Module: ${module.name}`);
 
     const testCount = module.tests.length;
@@ -345,7 +345,7 @@ function printFailedTests(result, console) {
 }
 
 /**
- * Takes the test's log output and prints the information to console with identation and colors
+ * Takes the test's log output and prints the information to console with indentation and colors
  * @param {*} log log of the test
  */
 function printTestLog(log, console) {
@@ -356,6 +356,9 @@ function printTestLog(log, console) {
     const logRecord = log[n];
     const message = `Result: ${logRecord.result}, Expected: ${logRecord.expected}, Actual: ${logRecord.actual}, Message: ${logRecord.message}`;
     console.log(logRecord.result ? message.green : message.red);
+    if (!logRecord.result) {
+      console.log(`Stacktrace: ${logRecord.source.trim()}`.dim);
+    }
   }
 
   console.groupEnd();
