@@ -236,7 +236,7 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
 }
 
 /**
- * Takes the output of runQunitPuppeteer and prints it to console with identation and colors
+ * Takes the output of runQunitPuppeteer and prints it to console with indentation and colors
  * @param {*} result result of the runQunitPuppeteer
  */
 function printOutput(result, console) {
@@ -275,7 +275,7 @@ function printOutput(result, console) {
 
 
 /**
- * Takes the output of runQunitPuppeteer and prints a summary to console with identation and colors
+ * Takes the output of runQunitPuppeteer and prints a summary to console with indentation and colors
  * @param {*} result result of the runQunitPuppeteer
  */
 function printResultSummary(result, console) {
@@ -297,10 +297,10 @@ function printResultSummary(result, console) {
 
 
 /**
- * Takes the output of runQunitPuppeteer and prints failed test(s) information to console with identation and colors
+ * Takes the output of runQunitPuppeteer and prints failed test(s) information to console with indentation and colors
  * @param {*} result result of the runQunitPuppeteer
  */
-function printFailedTests(result, console, showStacktrace) {
+function printFailedTests(result, console) {
   // there is nothing to see here . . . move along, move along
   if (result.stats.failed === 0) {
     return;
@@ -334,7 +334,7 @@ function printFailedTests(result, console, showStacktrace) {
       console.log(`Elapsed: ${test.runtime}ms`);
 
       if (test.log) {
-        printTestLog(test.log, console, showStacktrace);
+        printTestLog(test.log, console);
       }
 
       console.groupEnd();
@@ -345,10 +345,10 @@ function printFailedTests(result, console, showStacktrace) {
 }
 
 /**
- * Takes the test's log output and prints the information to console with identation and colors
+ * Takes the test's log output and prints the information to console with indentation and colors
  * @param {*} log log of the test
  */
-function printTestLog(log, console, showStacktrace = false) {
+function printTestLog(log, console) {
   console.group('Log');
 
   const logCount = log.length;
@@ -356,7 +356,7 @@ function printTestLog(log, console, showStacktrace = false) {
     const logRecord = log[n];
     const message = `Result: ${logRecord.result}, Expected: ${logRecord.expected}, Actual: ${logRecord.actual}, Message: ${logRecord.message}`;
     console.log(logRecord.result ? message.green : message.red);
-    if (!logRecord.result && showStacktrace) {
+    if (!logRecord.result) {
       console.log(`Stacktrace: ${logRecord.source.trim()}`.dim);
     }
   }

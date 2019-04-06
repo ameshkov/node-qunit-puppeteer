@@ -58,8 +58,6 @@ runQunitPuppeteer(qunitArgs)
     printOutput(result, console);
     if (result.stats.failed > 0) {
       // Handle the failed test run
-      // e.g: Print failed tests without stacktrace
-      printFailedTests(result, console);
     }
   })
   .catch((ex) => {
@@ -85,8 +83,7 @@ runQunitPuppeteer(qunitArgs)
     printResultSummary(result, console);
 
     if (result.stats.failed > 0) {
-      // Print failed tests with stacktrace
-      printFailedTests(result, console, true);
+      printFailedTests(result, console);
 	  // other action(s) on failed tests
     }
   })

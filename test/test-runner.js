@@ -23,9 +23,6 @@ runQunitPuppeteer(qunitArgs)
       console.log();
       console.log('==========  printFailedTests  =========='.blue.bold);
       printFailedTests(result, console);
-      console.log();
-      console.log('==========  printFailedTests with stacktrace  =========='.blue.bold);
-      printFailedTests(result, console, true);
     }
   })
   .catch((ex) => {
