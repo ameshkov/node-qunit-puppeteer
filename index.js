@@ -199,7 +199,11 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
           for (let i = 0; i < callbacks.length; i += 1) {
             const qunitName = callbacks[i];
             const callbackName = qunitConfiguration.callbacks[qunitName];
-            QUnit[qunitName]((context) => { window[callbackName](context); });
+            if (qunitName === 'done' && typeof window.onBeforeQUnitPuppeteerClose === 'function') {
+              QUnit.done(context => window.onBeforeQUnitPuppeteerClose().then(() => window[callbackName](context)));
+            } else {
+              QUnit[qunitName]((context) => { window[callbackName](context); });
+            }
           }
         } catch (ex) {
           const Console = console;

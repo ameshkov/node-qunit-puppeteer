@@ -35,6 +35,10 @@ node-qunit-puppeteer <URL> [<timeout>] [<puppeteerArgs>]
 * `function printResultSummary(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints a summary to console with identation and colors.
 * `function printFailedTests(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints failed test(s) information to console with identation and colors.
 
+### Callback functions in browser test context
+
+* `Promise<void> window.onBeforeQUnitPuppeteerClose()` -- This callback will be called between all tests ran and Puppeteer close.
+
 #### Examples
 
 ```javascript
