@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+// eslint-disable-next-line
 const colors = require('colors');
 
 const DEFAULT_TIMEOUT = 30000;
@@ -214,6 +215,7 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
           qUnit = value;
           extendQUnit(qUnit);
         },
+        configurable: true,
       });
     }, evaluateArgs);
 
@@ -232,6 +234,99 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
     if (browser) {
       browser.close();
     }
+  }
+}
+
+/**
+ * Takes the test's log output and prints the information to console with indentation and colors
+ * @param {*} log log of the test
+ */
+function printTestLog(log, console) {
+  console.group('Log');
+
+  const logCount = log.length;
+  for (let n = 0; n < logCount; n += 1) {
+    const logRecord = log[n];
+    const message = `Result: ${logRecord.result}, Expected: ${logRecord.expected}, Actual: ${logRecord.actual}, Message: ${logRecord.message}`;
+    console.log(logRecord.result ? message.green : message.red);
+    if (!logRecord.result) {
+      console.log(`Stacktrace: ${logRecord.source.trim()}`.dim);
+    }
+  }
+
+  console.groupEnd();
+}
+
+/**
+ * Takes the output of runQunitPuppeteer and prints a summary to console with indentation and colors
+ * @param {*} result result of the runQunitPuppeteer
+ */
+function printResultSummary(result, console) {
+  console.log();
+
+  if (result.stats.failed === 0) {
+    console.log('Test run result: success'.green.bold);
+  } else {
+    console.log('Test run result: fail'.red.bold);
+  }
+
+  console.group(`Total tests: ${result.totalTests}`);
+  console.log(`Assertions: ${result.stats.total}`);
+  console.log(`Passed assertions: ${result.stats.passed.toString().green}`);
+  console.log(`Failed assertions: ${result.stats.failed > 0 ? result.stats.failed.toString().red : result.stats.failed}`);
+  console.log(`Elapsed: ${result.stats.runtime}ms`);
+  console.groupEnd();
+}
+
+
+/**
+ * Takes the output of runQunitPuppeteer and prints failed test(s)
+ * information to console with indentation and colors
+ * @param {*} result result of the runQunitPuppeteer
+ */
+function printFailedTests(result, console) {
+  // there is nothing to see here . . . move along, move along
+  if (result.stats.failed === 0) {
+    return;
+  }
+
+  const moduleNames = Object.keys(result.modules);
+  const moduleCount = moduleNames.length;
+  for (let i = 0; i < moduleCount; i += 1) {
+    const module = result.modules[moduleNames[i]];
+
+    // there is nothing to see here . . . move along, move along
+    if (module.failed === 0) {
+      // eslint-disable-next-line
+      continue;
+    }
+
+    // console.log();
+    console.group(`Module: ${module.name}`);
+
+    const testCount = module.tests.length;
+    for (let j = 0; j < testCount; j += 1) {
+      const test = module.tests[j];
+
+      // there is nothing to see here . . . move along, move along
+      if (test.failed === 0) {
+        // eslint-disable-next-line
+        continue;
+      }
+
+      console.group(`Test: ${test.name}`);
+      console.log('Status: failed'.red.bold);
+      console.log(`Failed assertions: ${test.failed} of ${test.total}`);
+      console.log(`Elapsed: ${test.runtime}ms`);
+
+      if (test.log) {
+        printTestLog(test.log, console);
+      }
+
+      console.groupEnd();
+    }
+
+    console.groupEnd();
   }
 }
 
@@ -271,97 +366,6 @@ function printOutput(result, console) {
   }
 
   printResultSummary(result, console);
-}
-
-
-/**
- * Takes the output of runQunitPuppeteer and prints a summary to console with indentation and colors
- * @param {*} result result of the runQunitPuppeteer
- */
-function printResultSummary(result, console) {
-  console.log();
-
-  if (result.stats.failed === 0) {
-    console.log('Test run result: success'.green.bold);
-  } else {
-    console.log('Test run result: fail'.red.bold);
-  }
-
-  console.group(`Total tests: ${result.totalTests}`);
-  console.log(`Assertions: ${result.stats.total}`);
-  console.log(`Passed assertions: ${result.stats.passed.toString().green}`);
-  console.log(`Failed assertions: ${result.stats.failed > 0 ? result.stats.failed.toString().red : result.stats.failed}`);
-  console.log(`Elapsed: ${result.stats.runtime}ms`);
-  console.groupEnd();
-}
-
-
-/**
- * Takes the output of runQunitPuppeteer and prints failed test(s) information to console with indentation and colors
- * @param {*} result result of the runQunitPuppeteer
- */
-function printFailedTests(result, console) {
-  // there is nothing to see here . . . move along, move along
-  if (result.stats.failed === 0) {
-    return;
-  }
-
-  const moduleNames = Object.keys(result.modules);
-  const moduleCount = moduleNames.length;
-  for (let i = 0; i < moduleCount; i += 1) {
-    const module = result.modules[moduleNames[i]];
-
-    // there is nothing to see here . . . move along, move along
-    if (module.failed === 0) {
-      continue;
-    }
-
-    // console.log();
-    console.group(`Module: ${module.name}`);
-
-    const testCount = module.tests.length;
-    for (let j = 0; j < testCount; j += 1) {
-      const test = module.tests[j];
-
-      // there is nothing to see here . . . move along, move along
-      if (test.failed === 0) {
-        continue;
-      }
-
-      console.group(`Test: ${test.name}`);
-      console.log('Status: failed'.red.bold);
-      console.log(`Failed assertions: ${test.failed} of ${test.total}`);
-      console.log(`Elapsed: ${test.runtime}ms`);
-
-      if (test.log) {
-        printTestLog(test.log, console);
-      }
-
-      console.groupEnd();
-    }
-
-    console.groupEnd();
-  }
-}
-
-/**
- * Takes the test's log output and prints the information to console with indentation and colors
- * @param {*} log log of the test
- */
-function printTestLog(log, console) {
-  console.group('Log');
-
-  const logCount = log.length;
-  for (let n = 0; n < logCount; n += 1) {
-    const logRecord = log[n];
-    const message = `Result: ${logRecord.result}, Expected: ${logRecord.expected}, Actual: ${logRecord.actual}, Message: ${logRecord.message}`;
-    console.log(logRecord.result ? message.green : message.red);
-    if (!logRecord.result) {
-      console.log(`Stacktrace: ${logRecord.source.trim()}`.dim);
-    }
-  }
-
-  console.groupEnd();
 }
 
 module.exports.runQunitPuppeteer = runQunitPuppeteer;
