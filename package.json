@@ -1,6 +1,6 @@
 {
     "name": "node-qunit-puppeteer",
-    "version": "1.0.14",
+    "version": "1.0.15",
     "description": "A simple node module for running qunit tests with headless Chromium",
     "repository": {
         "type": "git",

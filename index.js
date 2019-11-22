@@ -201,6 +201,11 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
 
         Object.keys(object).forEach((prop) => {
           const propValue = object[prop];
+          if (propValue === null || typeof propValue === 'undefined') {
+            clone[prop] = propValue;
+            return;
+          }
+
           try {
             clone[prop] = JSON.parse(JSON.stringify(propValue));
           } catch (ex) {
