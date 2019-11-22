@@ -185,10 +185,16 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
       },
     };
 
-    await page.evaluateOnNewDocument((qunitConfiguration) => {
+    await page.evaluateOnNewDocument((evaluateArgs) => {
       /* global window */
       // IMPORTANT: This script is executed in the context of the page
       // YOU CANNOT ACCESS ANY VARIABLE OUT OF THIS BLOCK SCOPE
+
+      // Save these globals immediately in order to avoid
+      // messing with in-page scripts that can redefine them
+      const jsonParse = JSON.parse;
+      const jsonStringify = JSON.stringify;
+      const objectKeys = Object.keys;
 
       /**
        * Clones QUnit context object in a safe manner:
@@ -199,7 +205,7 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
       function safeCloneQUnitContext(object) {
         const clone = {};
 
-        Object.keys(object).forEach((prop) => {
+        objectKeys(object).forEach((prop) => {
           const propValue = object[prop];
           if (propValue === null || typeof propValue === 'undefined') {
             clone[prop] = propValue;
@@ -207,7 +213,7 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
           }
 
           try {
-            clone[prop] = JSON.parse(JSON.stringify(propValue));
+            clone[prop] = jsonParse(jsonStringify(propValue));
           } catch (ex) {
             // Most likely this is a circular structure
             // In this case we just call toString on this value
@@ -227,13 +233,13 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
       function extendQUnit(QUnit) {
         try {
           // eslint-disable-next-line
-          QUnit.config.testTimeout = qunitConfiguration.testTimeout;
+          QUnit.config.testTimeout = evaluateArgs.testTimeout;
 
           // Pass our callback methods to QUnit
-          const callbacks = Object.keys(qunitConfiguration.callbacks);
+          const callbacks = Object.keys(evaluateArgs.callbacks);
           for (let i = 0; i < callbacks.length; i += 1) {
             const qunitName = callbacks[i];
-            const callbackName = qunitConfiguration.callbacks[qunitName];
+            const callbackName = evaluateArgs.callbacks[qunitName];
             QUnit[qunitName]((context) => { window[callbackName](safeCloneQUnitContext(context)); });
           }
         } catch (ex) {
