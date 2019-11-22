@@ -28,6 +28,10 @@
       assert.ok(1 == "1", "Passed 1!");
       assert.ok(1 == "2", "Passed 2!");
     });
+
+    QUnit.test("module 2 success test 3", function (assert) {
+      assert.strictEqual(window, window, "Passed 3!");
+    });
   </script>
 </body>
 

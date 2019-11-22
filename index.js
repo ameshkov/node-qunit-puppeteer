@@ -187,9 +187,38 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
 
     await page.evaluateOnNewDocument((qunitConfiguration) => {
       /* global window */
-
       // IMPORTANT: This script is executed in the context of the page
       // YOU CANNOT ACCESS ANY VARIABLE OUT OF THIS BLOCK SCOPE
+
+      /**
+       * Clones QUnit context object in a safe manner:
+       * https://github.com/ameshkov/node-qunit-puppeteer/issues/16
+       *
+       * @param {*} object - object to clone in a safe manner
+       */
+      function safeCloneQUnitContext(object) {
+        const clone = {};
+
+        Object.keys(object).forEach((prop) => {
+          const propValue = object[prop];
+          try {
+            clone[prop] = JSON.parse(JSON.stringify(propValue));
+          } catch (ex) {
+            // Most likely this is a circular structure
+            // In this case we just call toString on this value
+            clone[prop] = propValue.toString();
+          }
+        });
+
+        return clone;
+      }
+
+      /**
+       * Changes QUnit so that their callbacks were passed to the main program.
+       * We call previously exposed functions for every QUnit callback.
+       *
+       * @param {*} QUnit - qunit global object
+       */
       function extendQUnit(QUnit) {
         try {
           // eslint-disable-next-line
@@ -200,7 +229,7 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
           for (let i = 0; i < callbacks.length; i += 1) {
             const qunitName = callbacks[i];
             const callbackName = qunitConfiguration.callbacks[qunitName];
-            QUnit[qunitName]((context) => { window[callbackName](context); });
+            QUnit[qunitName]((context) => { window[callbackName](safeCloneQUnitContext(context)); });
           }
         } catch (ex) {
           const Console = console;
