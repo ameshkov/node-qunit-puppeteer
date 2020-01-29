@@ -9,6 +9,15 @@ const qunitArgs = {
   redirectConsole: true,
 };
 
+/**
+ * Expected result:
+Test run result: fail
+Total tests: 4
+  Assertions: 6
+  Passed assertions: 5
+  Failed assertions: 1
+ */
+
 runQunitPuppeteer(qunitArgs)
   .then((result) => {
     // Print the test result to the output

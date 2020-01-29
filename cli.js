@@ -33,7 +33,7 @@ Console.log(`Target URL is ${qunitArgs.targetUrl}, timeout is ${qunitArgs.timeou
 
 const puppeteerArgsStr = args[2];
 if (typeof puppeteerArgsStr === 'string') {
-  const puppeteerArgs = puppeteerArgsStr.split(/(\s+)/).filter(s => s.trim().length > 0);
+  const puppeteerArgs = puppeteerArgsStr.split(/(\s+)/).filter((s) => s.trim().length > 0);
   if (args.length > 0) {
     qunitArgs.puppeteerArgs = puppeteerArgs;
     Console.log(`Puppeteer args are: ${puppeteerArgs.join(' ')}`);

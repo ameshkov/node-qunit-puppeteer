@@ -15,63 +15,68 @@ npm install -g node-qunit-puppeteer
 node-qunit-puppeteer <URL> [<timeout>] [<puppeteerArgs>]
 ```
 
-* `<URL>` - the address (or filepath) of the qunit HTML test page.
-* `<timeout>` - (optional) test run timeout in milliseconds. Default is 30000.
-* `<puppeteerArgs>` - (optional) Chrome command-line arguments. Default is "--allow-file-access-from-files".
+- `<URL>` - the address (or filepath) of the qunit HTML test page.
+- `<timeout>` - (optional) test run timeout in milliseconds. Default is 30000.
+- `<puppeteerArgs>` - (optional) Chrome command-line arguments. Default is "--allow-file-access-from-files".
 
 #### Examples
+
 `node-qunit-puppeteer https://example.org/ 10000 "--allow-file-access-from-files --no-sandbox"`
 `node-qunit-puppeteer ./test/test-runner.html 10000 "--allow-file-access-from-files --no-sandbox"`
 
 ### Node module
 
-* npm: `npm install node-qunit-puppeteer --save-dev`
-* yarn: `yarn add node-qunit-puppeteer --dev`
+- npm: `npm install node-qunit-puppeteer --save-dev`
+- yarn: `yarn add node-qunit-puppeteer --dev`
 
 #### Exported functions
 
-* `async function runQunitPuppeteer(qunitPuppeteerArgs)` --  Opens the specified HTML page in a Chromium puppeteer and captures results of a test run. Returns an object with information on every module/test run.
-* `function printOutput(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints it to console with identation and colors.
-* `function printResultSummary(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints a summary to console with identation and colors.
-* `function printFailedTests(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints failed test(s) information to console with identation and colors.
+- `async function runQunitPuppeteer(qunitPuppeteerArgs)` -- Opens the specified HTML page in a Chromium puppeteer and captures results of a test run. Returns an object with information on every module/test run.
+- `function printOutput(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints it to console with identation and colors.
+- `function printResultSummary(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints a summary to console with identation and colors.
+- `function printFailedTests(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints failed test(s) information to console with identation and colors.
 
 #### Examples
 
 ```javascript
-const path = require('path');
-const { runQunitPuppeteer, printOutput } = require('node-qunit-puppeteer');
+const path = require("path");
+const { runQunitPuppeteer, printOutput } = require("node-qunit-puppeteer");
 
 const qunitArgs = {
   // Path to qunit tests suite
-  targetUrl: `file://${path.join(__dirname, 'tests.html')}`,
+  targetUrl: `file://${path.join(__dirname, "tests.html")}`,
   // (optional, 30000 by default) global timeout for the tests suite
   timeout: 10000,
   // (optional, false by default) should the browser console be redirected or not
   redirectConsole: true,
   // (optional, ['--allow-file-access-from-files'] by default) Chrome command-line arguments
-  puppeteerArgs: ['--allow-file-access-from-files'],
+  puppeteerArgs: ["--allow-file-access-from-files"]
 };
 
 runQunitPuppeteer(qunitArgs)
-  .then((result) => {
+  .then(result => {
     // Print the test result to the output
     printOutput(result, console);
     if (result.stats.failed > 0) {
       // Handle the failed test run
     }
   })
-  .catch((ex) => {
+  .catch(ex => {
     console.error(ex);
   });
 ```
 
 ```javascript
-const path = require('path');
-const { runQunitPuppeteer, printResultSummary, printFailedTests } = require('node-qunit-puppeteer');
+const path = require("path");
+const {
+  runQunitPuppeteer,
+  printResultSummary,
+  printFailedTests
+} = require("node-qunit-puppeteer");
 
 const qunitArgs = {
   // Path to qunit tests suite
-  targetUrl: `file://${path.join(__dirname, 'tests.html')}`,
+  targetUrl: `file://${path.join(__dirname, "tests.html")}`,
   // (optional, 30000 by default) global timeout for the tests suite
   timeout: 10000,
   // (optional, false by default) should the browser console be redirected or not
@@ -79,15 +84,15 @@ const qunitArgs = {
 };
 
 runQunitPuppeteer(qunitArgs)
-  .then((result) => {
+  .then(result => {
     printResultSummary(result, console);
 
     if (result.stats.failed > 0) {
       printFailedTests(result, console);
-	  // other action(s) on failed tests
+      // other action(s) on failed tests
     }
   })
-  .catch((ex) => {
+  .catch(ex => {
     console.error(ex);
   });
 ```
@@ -97,6 +102,7 @@ runQunitPuppeteer(qunitArgs)
 <img width="499" style="border: 1px solid #efefef" src="https://user-images.githubusercontent.com/5947035/47224776-0888c800-d3c5-11e8-9364-6d6f1d4b3bd1.png">
 
 ## `result` object
+
 ```json
 {
   "modules": {

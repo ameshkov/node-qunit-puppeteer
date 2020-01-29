@@ -88,7 +88,7 @@ async function exposeCallbacks(page) {
     try {
       const test = deepClone(context);
       const module = result.modules[test.module];
-      const currentTest = module.tests.find(t => t.name === test.name);
+      const currentTest = module.tests.find((t) => t.name === test.name);
       Object.assign(currentTest, test);
     } catch (ex) {
       deferred.reject(ex);
@@ -121,7 +121,7 @@ async function exposeCallbacks(page) {
     try {
       const test = deepClone(context);
       const module = result.modules[test.module];
-      const currentTest = module.tests.find(t => t.name === test.name);
+      const currentTest = module.tests.find((t) => t.name === test.name);
       Object.assign(currentTest, test);
     } catch (ex) {
       deferred.reject(ex);
@@ -132,7 +132,7 @@ async function exposeCallbacks(page) {
     try {
       const record = deepClone(context);
       const module = result.modules[record.module];
-      const currentTest = module.tests.find(t => t.name === record.name);
+      const currentTest = module.tests.find((t) => t.name === record.name);
 
       currentTest.log = currentTest.log || [];
       currentTest.log.push(record);
@@ -185,6 +185,7 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
       },
     };
 
+    // eslint-disable-next-line no-shadow
     await page.evaluateOnNewDocument((evaluateArgs) => {
       /* global window */
       // IMPORTANT: This script is executed in the context of the page
@@ -240,7 +241,9 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
           for (let i = 0; i < callbacks.length; i += 1) {
             const qunitName = callbacks[i];
             const callbackName = evaluateArgs.callbacks[qunitName];
-            QUnit[qunitName]((context) => { window[callbackName](safeCloneQUnitContext(context)); });
+            QUnit[qunitName]((context) => {
+              window[callbackName](safeCloneQUnitContext(context));
+            });
           }
         } catch (ex) {
           const Console = console;
@@ -268,8 +271,6 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
     // All good, clear the timeout
     clearTimeout(timeoutId);
     return qunitTestResult;
-  } catch (ex) {
-    throw ex;
   } finally {
     if (browser) {
       browser.close();
