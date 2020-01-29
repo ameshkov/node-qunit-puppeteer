@@ -1,6 +1,6 @@
 {
     "name": "node-qunit-puppeteer",
-    "version": "1.0.17",
+    "version": "1.1.0",
     "description": "A simple node module for running qunit tests with headless Chromium",
     "repository": {
         "type": "git",
@@ -17,7 +17,7 @@
     },
     "dependencies": {
         "colors": "^1.4.0",
-        "puppeteer": "^1.9.0"
+        "puppeteer": "^2.1.0"
     },
     "keywords": [
         "qunit",
@@ -38,6 +38,7 @@
         "eslint-plugin-import": "^2.18.2",
         "eslint-plugin-jsx-a11y": "^6.2.3",
         "eslint-plugin-react": "^7.16.0",
+        "eslint-plugin-react-hooks": "^1.7.0",
         "merge": ">=1.2.1",
         "qunit": "^2.9.3"
     }
