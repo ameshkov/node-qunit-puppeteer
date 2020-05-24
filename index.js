@@ -162,7 +162,18 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
     // Redirect the page console if needed
     if (qunitPuppeteerArgs.redirectConsole) {
       const Console = console;
-      page.on('console', (consoleArgs) => { Console.log('[%s] %s', consoleArgs.type(), consoleArgs.text()); });
+      const transform = function(jsHandle) {
+        return jsHandle.executionContext().evaluate(obj => {
+          // serialize |obj| however you want
+          return obj.toString();
+        }, jsHandle);
+      }
+
+      page.on('console', (consoleArgs) => { 
+        Promise.all(consoleArgs.args().map(arg => transform(arg))).then((args) => {
+          Console.log('[%s]', consoleArgs.type(), ...args);
+        })
+      });
     }
 
     // Prepare the callbacks that will be called by the page
