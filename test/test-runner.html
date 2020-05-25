@@ -17,6 +17,7 @@
     QUnit.test("module 1 simple test 1", function (assert) {
       assert.ok(1 == "1", "Passed 1!");
       assert.ok(2 == "2", "Passed 2!");
+      console.log(new Error("not an error, testing console log"));
     });
 
     QUnit.module("module 2");

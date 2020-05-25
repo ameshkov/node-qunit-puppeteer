@@ -18,22 +18,23 @@ Total tests: 4
   Failed assertions: 1
  */
 
+const Console = console;
 runQunitPuppeteer(qunitArgs)
   .then((result) => {
     // Print the test result to the output
-    console.log();
-    console.log('==========    printOutput     =========='.blue.bold);
+    Console.log();
+    Console.log('==========    printOutput     =========='.blue.bold);
     printOutput(result, console);
 
-    console.log();
-    console.log('========== printResultSummary =========='.blue.bold);
+    Console.log();
+    Console.log('========== printResultSummary =========='.blue.bold);
     printResultSummary(result, console);
     if (result.stats.failed > 0) {
-      console.log();
-      console.log('==========  printFailedTests  =========='.blue.bold);
+      Console.log();
+      Console.log('==========  printFailedTests  =========='.blue.bold);
       printFailedTests(result, console);
     }
   })
   .catch((ex) => {
-    console.error(ex);
+    Console.error(ex);
   });

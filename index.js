@@ -162,17 +162,21 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
     // Redirect the page console if needed
     if (qunitPuppeteerArgs.redirectConsole) {
       const Console = console;
-      const transform = function(jsHandle) {
-        return jsHandle.executionContext().evaluate(obj => {
+      // eslint-disable-next-line func-names
+      const transform = function (jsHandle) {
+        return jsHandle.executionContext().evaluate((obj) => {
           // serialize |obj| however you want
-          return obj.toString();
+          if (obj) {
+            return obj.toString();
+          }
+          return '';
         }, jsHandle);
-      }
+      };
 
-      page.on('console', (consoleArgs) => { 
-        Promise.all(consoleArgs.args().map(arg => transform(arg))).then((args) => {
-          Console.log('[%s]', consoleArgs.type(), ...args);
-        })
+      page.on('console', (consoleArgs) => {
+        Promise.all(consoleArgs.args().map((arg) => transform(arg))).then((cArgs) => {
+          Console.log('[%s]', consoleArgs.type(), ...cArgs);
+        });
       });
     }
 
