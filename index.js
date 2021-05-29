@@ -145,147 +145,167 @@ async function exposeCallbacks(page) {
 }
 
 /**
+ * Runs Qunit tests using the specified `puppeteer.Page` instance.
+ * @param {puppeteer.Page} page - Page instance to use for running tests
+ * @param {QunitPuppeteerArgs} qunitPuppeteerArgs - Configuration for the test runner
+ */
+async function runQunitWithPage(page, qunitPuppeteerArgs) {
+  const timeout = qunitPuppeteerArgs.timeout || DEFAULT_TIMEOUT;
+
+  // Redirect the page console if needed
+  if (qunitPuppeteerArgs.redirectConsole) {
+    const Console = console;
+    // eslint-disable-next-line func-names
+    const transform = function (jsHandle) {
+      return jsHandle.executionContext().evaluate((obj) => {
+        // serialize |obj| however you want
+        if (obj) {
+          return obj.toString();
+        }
+        return '';
+      }, jsHandle);
+    };
+
+    page.on('console', (consoleArgs) => {
+      Promise.all(consoleArgs.args().map((arg) => transform(arg))).then((cArgs) => {
+        Console.log('[%s]', consoleArgs.type(), ...cArgs);
+      });
+    });
+  }
+
+  // Prepare the callbacks that will be called by the page
+  const deferred = await exposeCallbacks(page);
+
+  // Run the timeout timer just in case
+  const timeoutId = setTimeout(() => { deferred.reject(new Error(`Test run could not finish in ${timeout}ms`)); }, timeout);
+
+  // Configuration for the in-page script (will be passed via evaluate to the page script)
+  const evaluateArgs = {
+    testTimeout: timeout,
+    callbacks: {
+      begin: BEGIN_CB,
+      done: DONE_CB,
+      moduleStart: MODULE_START_CB,
+      moduleDone: MODULE_DONE_CB,
+      testStart: TEST_START_CB,
+      testDone: TEST_DONE_CB,
+      log: LOG_CB,
+    },
+  };
+
+  // eslint-disable-next-line no-shadow
+  await page.evaluateOnNewDocument((evaluateArgs) => {
+    /* global window */
+    // IMPORTANT: This script is executed in the context of the page
+    // YOU CANNOT ACCESS ANY VARIABLE OUT OF THIS BLOCK SCOPE
+
+    // Save these globals immediately in order to avoid
+    // messing with in-page scripts that can redefine them
+    const jsonParse = JSON.parse;
+    const jsonStringify = JSON.stringify;
+    const objectKeys = Object.keys;
+
+    /**
+     * Clones QUnit context object in a safe manner:
+     * https://github.com/ameshkov/node-qunit-puppeteer/issues/16
+     *
+     * @param {*} object - object to clone in a safe manner
+     */
+    function safeCloneQUnitContext(object) {
+      const clone = {};
+
+      objectKeys(object).forEach((prop) => {
+        const propValue = object[prop];
+        if (propValue === null || typeof propValue === 'undefined') {
+          clone[prop] = propValue;
+          return;
+        }
+
+        try {
+          clone[prop] = jsonParse(jsonStringify(propValue));
+        } catch (ex) {
+          // Most likely this is a circular structure
+          // In this case we just call toString on this value
+          clone[prop] = propValue.toString();
+        }
+      });
+
+      return clone;
+    }
+
+    /**
+     * Changes QUnit so that their callbacks were passed to the main program.
+     * We call previously exposed functions for every QUnit callback.
+     *
+     * @param {*} QUnit - qunit global object
+     */
+    function extendQUnit(QUnit) {
+      try {
+        // eslint-disable-next-line
+        QUnit.config.testTimeout = evaluateArgs.testTimeout;
+
+        // Pass our callback methods to QUnit
+        const callbacks = Object.keys(evaluateArgs.callbacks);
+        for (let i = 0; i < callbacks.length; i += 1) {
+          const qunitName = callbacks[i];
+          const callbackName = evaluateArgs.callbacks[qunitName];
+          QUnit[qunitName]((context) => {
+            window[callbackName](safeCloneQUnitContext(context));
+          });
+        }
+      } catch (ex) {
+        const Console = console;
+        Console.error(`Error while executing the in-page script: ${ex}`);
+      }
+    }
+
+    let qUnit;
+    Object.defineProperty(window, 'QUnit', {
+      get: () => qUnit,
+      set: (value) => {
+        qUnit = value;
+        extendQUnit(qUnit);
+      },
+      configurable: true,
+    });
+  }, evaluateArgs);
+
+  // Open the target page
+  await page.goto(qunitPuppeteerArgs.targetUrl);
+
+  // Wait for the test result
+  const qunitTestResult = await deferred.promise;
+
+  // All good, clear the timeout
+  clearTimeout(timeoutId);
+  return qunitTestResult;
+}
+
+/**
+ * Runs Qunit tests using the specified `puppeteer.Page` instance.
+ *
+ * @param {puppeteer.Browser} browser - Puppeteer browser instance to use for running tests
+ * @param {QunitPuppeteerArgs} qunitPuppeteerArgs - Configuration for the test runner
+ */
+async function runQunitWithBrowser(browser, qunitPuppeteerArgs) {
+  // Opens a page where we'll run the tests
+  const page = await browser.newPage();
+
+  // Run the tests
+  return runQunitWithPage(page, qunitPuppeteerArgs);
+}
+
+/**
  * Opens the specified HTML page in a Chromium puppeteer and captures results of a test run.
  * @param {QunitPuppeteerArgs} qunitPuppeteerArgs Configuration for the test runner
  */
 async function runQunitPuppeteer(qunitPuppeteerArgs) {
-  const timeout = qunitPuppeteerArgs.timeout || DEFAULT_TIMEOUT;
-
   const puppeteerArgs = qunitPuppeteerArgs.puppeteerArgs || ['--allow-file-access-from-files'];
   const args = { args: puppeteerArgs };
   const browser = await puppeteer.launch(args);
 
   try {
-    // Opens the target page
-    const page = await browser.newPage();
-
-    // Redirect the page console if needed
-    if (qunitPuppeteerArgs.redirectConsole) {
-      const Console = console;
-      // eslint-disable-next-line func-names
-      const transform = function (jsHandle) {
-        return jsHandle.executionContext().evaluate((obj) => {
-          // serialize |obj| however you want
-          if (obj) {
-            return obj.toString();
-          }
-          return '';
-        }, jsHandle);
-      };
-
-      page.on('console', (consoleArgs) => {
-        Promise.all(consoleArgs.args().map((arg) => transform(arg))).then((cArgs) => {
-          Console.log('[%s]', consoleArgs.type(), ...cArgs);
-        });
-      });
-    }
-
-    // Prepare the callbacks that will be called by the page
-    const deferred = await exposeCallbacks(page);
-
-    // Run the timeout timer just in case
-    const timeoutId = setTimeout(() => { deferred.reject(new Error(`Test run could not finish in ${timeout}ms`)); }, timeout);
-
-    // Configuration for the in-page script (will be passed via evaluate to the page script)
-    const evaluateArgs = {
-      testTimeout: timeout,
-      callbacks: {
-        begin: BEGIN_CB,
-        done: DONE_CB,
-        moduleStart: MODULE_START_CB,
-        moduleDone: MODULE_DONE_CB,
-        testStart: TEST_START_CB,
-        testDone: TEST_DONE_CB,
-        log: LOG_CB,
-      },
-    };
-
-    // eslint-disable-next-line no-shadow
-    await page.evaluateOnNewDocument((evaluateArgs) => {
-      /* global window */
-      // IMPORTANT: This script is executed in the context of the page
-      // YOU CANNOT ACCESS ANY VARIABLE OUT OF THIS BLOCK SCOPE
-
-      // Save these globals immediately in order to avoid
-      // messing with in-page scripts that can redefine them
-      const jsonParse = JSON.parse;
-      const jsonStringify = JSON.stringify;
-      const objectKeys = Object.keys;
-
-      /**
-       * Clones QUnit context object in a safe manner:
-       * https://github.com/ameshkov/node-qunit-puppeteer/issues/16
-       *
-       * @param {*} object - object to clone in a safe manner
-       */
-      function safeCloneQUnitContext(object) {
-        const clone = {};
-
-        objectKeys(object).forEach((prop) => {
-          const propValue = object[prop];
-          if (propValue === null || typeof propValue === 'undefined') {
-            clone[prop] = propValue;
-            return;
-          }
-
-          try {
-            clone[prop] = jsonParse(jsonStringify(propValue));
-          } catch (ex) {
-            // Most likely this is a circular structure
-            // In this case we just call toString on this value
-            clone[prop] = propValue.toString();
-          }
-        });
-
-        return clone;
-      }
-
-      /**
-       * Changes QUnit so that their callbacks were passed to the main program.
-       * We call previously exposed functions for every QUnit callback.
-       *
-       * @param {*} QUnit - qunit global object
-       */
-      function extendQUnit(QUnit) {
-        try {
-          // eslint-disable-next-line
-          QUnit.config.testTimeout = evaluateArgs.testTimeout;
-
-          // Pass our callback methods to QUnit
-          const callbacks = Object.keys(evaluateArgs.callbacks);
-          for (let i = 0; i < callbacks.length; i += 1) {
-            const qunitName = callbacks[i];
-            const callbackName = evaluateArgs.callbacks[qunitName];
-            QUnit[qunitName]((context) => {
-              window[callbackName](safeCloneQUnitContext(context));
-            });
-          }
-        } catch (ex) {
-          const Console = console;
-          Console.error(`Error while executing the in-page script: ${ex}`);
-        }
-      }
-
-      let qUnit;
-      Object.defineProperty(window, 'QUnit', {
-        get: () => qUnit,
-        set: (value) => {
-          qUnit = value;
-          extendQUnit(qUnit);
-        },
-        configurable: true,
-      });
-    }, evaluateArgs);
-
-    // Open the target page
-    await page.goto(qunitPuppeteerArgs.targetUrl);
-
-    // Wait for the test result
-    const qunitTestResult = await deferred.promise;
-
-    // All good, clear the timeout
-    clearTimeout(timeoutId);
-    return qunitTestResult;
+    return await runQunitWithBrowser(browser, qunitPuppeteerArgs);
   } finally {
     if (browser) {
       browser.close();
@@ -425,6 +445,8 @@ function printOutput(result, console) {
 }
 
 module.exports.runQunitPuppeteer = runQunitPuppeteer;
+module.exports.runQunitWithBrowser = runQunitWithBrowser;
+module.exports.runQunitWithPage = runQunitWithPage;
 module.exports.printOutput = printOutput;
 module.exports.printResultSummary = printResultSummary;
 module.exports.printFailedTests = printFailedTests;
