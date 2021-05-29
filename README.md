@@ -35,7 +35,8 @@ node-qunit-puppeteer <URL> [<timeout>] [<puppeteerArgs>]
 - `function printOutput(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints it to console with identation and colors.
 - `function printResultSummary(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints a summary to console with identation and colors.
 - `function printFailedTests(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints failed test(s) information to console with identation and colors.
-- `async function runQunitWithBrowser(browser, qunitPuppeteerArgs)` -- Runs the specified HTML page in the specified `puppeteer.Browser` instance. You might want to use this if you want to use a different puppeteer version or if you need to apply some additional logic on top of it.
+- `async function runQunitWithBrowser(browser, qunitPuppeteerArgs)` -- Runs the specified HTML page in the `puppeteer.Browser` instance. You might want to use this if you need to use a different puppeteer version or if you need to apply some additional logic on top of it.
+- `async function runQunitWithPage(page, qunitPuppeteerArgs)` -- Runs the specified HTML page in the `puppeteer.Page` instance. Just like the previous function, you may want to use it if you need to use a different puppeteer version.
 
 #### Examples
 

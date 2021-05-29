@@ -145,16 +145,12 @@ async function exposeCallbacks(page) {
 }
 
 /**
- * Runs Qunit tests using the specified browser instance.
- *
- * @param {puppeteer.Browser} browser - Puppeteer browser instance to use
+ * Runs Qunit tests using the specified `puppeteer.Page` instance.
+ * @param {puppeteer.Page} page - Page instance to use for running tests
  * @param {QunitPuppeteerArgs} qunitPuppeteerArgs - Configuration for the test runner
  */
-async function runQunitWithBrowser(browser, qunitPuppeteerArgs) {
+async function runQunitWithPage(page, qunitPuppeteerArgs) {
   const timeout = qunitPuppeteerArgs.timeout || DEFAULT_TIMEOUT;
-
-  // Opens the target page
-  const page = await browser.newPage();
 
   // Redirect the page console if needed
   if (qunitPuppeteerArgs.redirectConsole) {
@@ -283,6 +279,20 @@ async function runQunitWithBrowser(browser, qunitPuppeteerArgs) {
   // All good, clear the timeout
   clearTimeout(timeoutId);
   return qunitTestResult;
+}
+
+/**
+ * Runs Qunit tests using the specified `puppeteer.Page` instance.
+ *
+ * @param {puppeteer.Browser} browser - Puppeteer browser instance to use for running tests
+ * @param {QunitPuppeteerArgs} qunitPuppeteerArgs - Configuration for the test runner
+ */
+async function runQunitWithBrowser(browser, qunitPuppeteerArgs) {
+  // Opens a page where we'll run the tests
+  const page = await browser.newPage();
+
+  // Run the tests
+  return runQunitWithPage(page, qunitPuppeteerArgs);
 }
 
 /**
@@ -436,6 +446,7 @@ function printOutput(result, console) {
 
 module.exports.runQunitPuppeteer = runQunitPuppeteer;
 module.exports.runQunitWithBrowser = runQunitWithBrowser;
+module.exports.runQunitWithPage = runQunitWithPage;
 module.exports.printOutput = printOutput;
 module.exports.printResultSummary = printResultSummary;
 module.exports.printFailedTests = printFailedTests;
