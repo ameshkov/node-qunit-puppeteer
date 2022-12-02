@@ -308,7 +308,7 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
     return await runQunitWithBrowser(browser, qunitPuppeteerArgs);
   } finally {
     if (browser) {
-      browser.close();
+      await browser.close();
     }
   }
 }
@@ -316,6 +316,7 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
 /**
  * Takes the test's log output and prints the information to console with indentation and colors
  * @param {*} log log of the test
+ * @param console
  */
 function printTestLog(log, console) {
   console.group('Log');
@@ -336,6 +337,7 @@ function printTestLog(log, console) {
 /**
  * Takes the output of runQunitPuppeteer and prints a summary to console with indentation and colors
  * @param {*} result result of the runQunitPuppeteer
+ * @param console
  */
 function printResultSummary(result, console) {
   console.log();
@@ -359,6 +361,7 @@ function printResultSummary(result, console) {
  * Takes the output of runQunitPuppeteer and prints failed test(s)
  * information to console with indentation and colors
  * @param {*} result result of the runQunitPuppeteer
+ * @param console
  */
 function printFailedTests(result, console) {
   // there is nothing to see here . . . move along, move along
@@ -409,6 +412,7 @@ function printFailedTests(result, console) {
 /**
  * Takes the output of runQunitPuppeteer and prints it to console with indentation and colors
  * @param {*} result result of the runQunitPuppeteer
+ * @param console
  */
 function printOutput(result, console) {
   const moduleNames = Object.keys(result.modules);
