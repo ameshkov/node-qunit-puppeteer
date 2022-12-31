@@ -145,6 +145,68 @@ async function exposeCallbacks(page) {
 }
 
 /**
+* A group of tasks that you monitor as a single unit.
+* Like Promise.all() but dynamic tasks adding/removing.
+* Every time when counter is 0, new generation is started,
+* and notifications should be added again.
+*/
+const DispatchGroup = function() {
+  const self = this;
+  self.running = 0;
+  self.notifications = new Array();
+  self.enter = () => {
+    ++self.running;
+  };
+  self.leave = () => {
+    if (--self.running == 0) {
+      for (i in self.notifications) {
+        self.notifications[i]();
+      }
+      self.notifications = new Array();
+    }
+  };
+  self.notify = (notification) => {
+    self.notifications.push(notification);
+  }
+  return self;
+}
+
+/**
+* Class for console redirection.
+* Please call stop before destruction, otherwise some tasks on page executionContext may fail.
+*/
+const ConsoleRedirector = function (page, console) {
+  const self = this;
+  const group = new DispatchGroup();
+  const Console = console;
+  // eslint-disable-next-line func-names
+  const transform = function (jsHandle) {
+    return jsHandle.executionContext().evaluate((obj) => {
+      // serialize |obj| however you want
+      if (obj) {
+        return obj.toString();
+      }
+      return '';
+    }, jsHandle);
+  };
+  const consoleHandler = (consoleArgs) => {
+    group.enter();
+    Promise.all(consoleArgs.args().map((arg) => transform(arg))).then((cArgs) => {
+      group.leave();
+      Console.log('[%s]', consoleArgs.type(), ...cArgs);
+    });
+  };
+  group.enter();
+  page.on('console', consoleHandler);
+  self.stop = () => new Promise(resolve => {
+    page.off('console', consoleHandler);
+    group.notify(resolve);
+    group.leave();
+  });
+  return self;
+}
+
+/**
  * Runs Qunit tests using the specified `puppeteer.Page` instance.
  * @param {puppeteer.Page} page - Page instance to use for running tests
  * @param {QunitPuppeteerArgs} qunitPuppeteerArgs - Configuration for the test runner
@@ -153,25 +215,7 @@ async function runQunitWithPage(page, qunitPuppeteerArgs) {
   const timeout = qunitPuppeteerArgs.timeout || DEFAULT_TIMEOUT;
 
   // Redirect the page console if needed
-  if (qunitPuppeteerArgs.redirectConsole) {
-    const Console = console;
-    // eslint-disable-next-line func-names
-    const transform = function (jsHandle) {
-      return jsHandle.executionContext().evaluate((obj) => {
-        // serialize |obj| however you want
-        if (obj) {
-          return obj.toString();
-        }
-        return '';
-      }, jsHandle);
-    };
-
-    page.on('console', (consoleArgs) => {
-      Promise.all(consoleArgs.args().map((arg) => transform(arg))).then((cArgs) => {
-        Console.log('[%s]', consoleArgs.type(), ...cArgs);
-      });
-    });
-  }
+  const consoleRedirector = qunitPuppeteerArgs.redirectConsole ? new ConsoleRedirector(page, console) : null;
 
   // Prepare the callbacks that will be called by the page
   const deferred = await exposeCallbacks(page);
@@ -275,6 +319,10 @@ async function runQunitWithPage(page, qunitPuppeteerArgs) {
 
   // Wait for the test result
   const qunitTestResult = await deferred.promise;
+
+  if (consoleRedirector) {
+    await consoleRedirector.stop();
+  }
 
   // All good, clear the timeout
   clearTimeout(timeoutId);
