@@ -145,37 +145,40 @@ async function exposeCallbacks(page) {
 }
 
 /**
-* A group of tasks that you monitor as a single unit.
-* Like Promise.all() but dynamic tasks adding/removing.
-* Every time when counter is 0, new generation is started,
-* and notifications should be added again.
-*/
-const DispatchGroup = function() {
+ * A group of tasks that you monitor as a single unit. Like Promise.all() but
+ * dynamic tasks adding/removing. Every time when counter is 0, new generation
+ * is started, and notifications should be added again.
+ */
+function DispatchGroup() {
   const self = this;
   self.running = 0;
-  self.notifications = new Array();
+  self.notifications = [];
   self.enter = () => {
-    ++self.running;
+    self.running += 1;
   };
   self.leave = () => {
-    if (--self.running == 0) {
-      for (i in self.notifications) {
+    self.running -= 1;
+    if (self.running === 0) {
+      for (let i = 0; i < self.notifications.length; i += 1) {
         self.notifications[i]();
       }
-      self.notifications = new Array();
+      self.notifications = [];
     }
   };
   self.notify = (notification) => {
     self.notifications.push(notification);
-  }
+  };
   return self;
-}
+};
 
 /**
-* Class for console redirection.
-* Please call stop before destruction, otherwise some tasks on page executionContext may fail.
-*/
-const ConsoleRedirector = function (page, console) {
+ * Class for console redirection. Please call stop before destruction, otherwise
+ * some tasks on page executionContext may fail.
+ *
+ * @param {*} page puppeteer page.
+ * @param {*} console pupeer console.
+ */
+function ConsoleRedirector(page, console) {
   const self = this;
   const group = new DispatchGroup();
   const Console = console;
@@ -196,13 +199,15 @@ const ConsoleRedirector = function (page, console) {
       Console.log('[%s]', consoleArgs.type(), ...cArgs);
     });
   };
+
   group.enter();
   page.on('console', consoleHandler);
-  self.stop = () => new Promise(resolve => {
+  self.stop = () => new Promise((resolve) => {
     page.off('console', consoleHandler);
     group.notify(resolve);
     group.leave();
   });
+
   return self;
 }
 
@@ -215,7 +220,8 @@ async function runQunitWithPage(page, qunitPuppeteerArgs) {
   const timeout = qunitPuppeteerArgs.timeout || DEFAULT_TIMEOUT;
 
   // Redirect the page console if needed
-  const consoleRedirector = qunitPuppeteerArgs.redirectConsole ? new ConsoleRedirector(page, console) : null;
+  const consoleRedirector = qunitPuppeteerArgs.redirectConsole
+    ? new ConsoleRedirector(page, console) : null;
 
   // Prepare the callbacks that will be called by the page
   const deferred = await exposeCallbacks(page);
