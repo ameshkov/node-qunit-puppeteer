@@ -169,7 +169,7 @@ function DispatchGroup() {
     self.notifications.push(notification);
   };
   return self;
-};
+}
 
 /**
  * Class for console redirection. Please call stop before destruction, otherwise
@@ -409,7 +409,6 @@ function printResultSummary(result, console) {
   console.log(`Elapsed: ${result.stats.runtime}ms`);
   console.groupEnd();
 }
-
 
 /**
  * Takes the output of runQunitPuppeteer and prints failed test(s)
