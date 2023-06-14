@@ -355,7 +355,7 @@ async function runQunitWithBrowser(browser, qunitPuppeteerArgs) {
  */
 async function runQunitPuppeteer(qunitPuppeteerArgs) {
   const puppeteerArgs = qunitPuppeteerArgs.puppeteerArgs || ['--allow-file-access-from-files'];
-  const args = { args: puppeteerArgs };
+  const args = { args: puppeteerArgs, headless: 'old' };
   const browser = await puppeteer.launch(args);
 
   try {
