@@ -4,6 +4,8 @@ const colors = require('colors');
 
 const DEFAULT_QUNIT_TIMEOUT = 30000;
 const DEFAULT_PUPPETEER_TIMEOUT = 30000;
+const CHROME_HEADLESS_OLD = 'old';
+const CHROME_HEADLESS_NEW = 'new';
 const CALLBACKS_PREFIX = 'qunit_puppeteer_runner';
 const MODULE_START_CB = `${CALLBACKS_PREFIX}_moduleStart`;
 const MODULE_DONE_CB = `${CALLBACKS_PREFIX}_moduleDone`;
@@ -368,9 +370,21 @@ async function runQunitPuppeteer(qunitPuppeteerArgs) {
   const puppeteerArgs = qunitPuppeteerArgs.puppeteerArgs || ['--allow-file-access-from-files'];
   // puppeteer browser launch timeout
   const puppeteerTimeout =  qunitPuppeteerArgs.puppeteerTimeout || DEFAULT_PUPPETEER_TIMEOUT
+  //Chrome handle headless flag, default to old to not break current behaviour
+  let chromeHeadless = CHROME_HEADLESS_OLD;
+  const chromeHeadlessNewArg = puppeteerArgs.indexOf('--chrome-headless-new');
+  if(chromeHeadlessNewArg !== -1) {
+    chromeHeadless = CHROME_HEADLESS_NEW;
+    puppeteerArgs.splice(chromeHeadlessNewArg, 1);
+  } else {
+    if(qunitPuppeteerArgs.chromeHeadlessNew === true) {
+        chromeHeadless = CHROME_HEADLESS_NEW;
+    }
+  }
 
   const args = {
     args: puppeteerArgs,
+    headless: chromeHeadless,
     timeout: puppeteerTimeout,
   };
   const browser = await puppeteer.launch(args);

@@ -19,11 +19,20 @@ node-qunit-puppeteer <URL> [<timeout>] [<puppeteerArgs>]
 - `<timeout>` - (optional) test run timeout in milliseconds. Default is 30000.
 - `<puppeteerArgs>` - (optional) Chrome command-line arguments. Default is "--allow-file-access-from-files".
 
+#### Chrome headless
+
+Defaults to 'old', as that was the previous behaviour in chrome.
+
+To toggle use `--headless=new` flag, add `--chrome-headless-new` to cli arguments.
+or `chromeHeadlessNew: true` to qunitArgs.
+
 #### Examples
 
 `node-qunit-puppeteer https://example.org/ 10000 "--allow-file-access-from-files --no-sandbox"`
 
 `node-qunit-puppeteer ./test/test-runner.html 10000 "--allow-file-access-from-files --no-sandbox"`
+
+`node-qunit-puppeteer ./test/test-runner.html 10000 "--chrome-headless-new"`
 
 ### Node module
 
