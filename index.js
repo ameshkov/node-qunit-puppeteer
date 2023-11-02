@@ -184,7 +184,7 @@ function ConsoleRedirector(page, console) {
   const Console = console;
   // eslint-disable-next-line func-names
   const transform = function (jsHandle) {
-    return jsHandle.executionContext().evaluate((obj) => {
+    return jsHandle.executionContext && jsHandle.executionContext().evaluate((obj) => {
       // serialize |obj| however you want
       if (obj) {
         return obj.toString();
