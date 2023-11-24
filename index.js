@@ -353,9 +353,12 @@ async function runQunitWithBrowser(browser, qunitPuppeteerArgs) {
  * Opens the specified HTML page in a Chromium puppeteer and captures results of a test run.
  * @param {QunitPuppeteerArgs} qunitPuppeteerArgs Configuration for the test runner
  */
-async function runQunitPuppeteer(qunitPuppeteerArgs) {
+async function runQunitPuppeteer(qunitPuppeteerArgs, headless = 'new') {
   const puppeteerArgs = qunitPuppeteerArgs.puppeteerArgs || ['--allow-file-access-from-files'];
-  const args = { args: puppeteerArgs };
+  const args = {
+    args: puppeteerArgs,
+    headless,
+  };
   const browser = await puppeteer.launch(args);
 
   try {
