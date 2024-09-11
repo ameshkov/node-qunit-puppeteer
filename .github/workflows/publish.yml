@@ -41,7 +41,6 @@ jobs:
         run: pnpm pack && mv node-qunit-puppeteer-*.tgz node-qunit-puppeteer.tgz
 
       - name: Publish to NPM
-        run: |
-            pnpm publish node-qunit-puppeteer.tgz --access=public --non-interactive
+        run: pnpm publish node-qunit-puppeteer.tgz --access=public --non-interactive
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
