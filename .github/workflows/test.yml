@@ -2,12 +2,12 @@
 name: test
 
 env:
-  NODE_VERSION: 16
+  NODE_VERSION: 20
 
 on:
   push:
     branches:
-      - "*"
+      - '*'
     tags:
       - v*
   pull_request:
@@ -17,21 +17,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Number of commits to fetch. 0 indicates all history.
           fetch-depth: 0
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          # actions/setup-node@v3 already has caching under hood.
-          cache: "yarn"
-      - name: Run bash commands
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run tests
         shell: bash
         run: |
           ls -alt
 
-          yarn install
-          yarn lint
-          yarn test
+          pnpm lint
+          pnpm test
