@@ -1,26 +1,21 @@
-# Tests build
-name: test
+name: Publish to NPM
 
 env:
   NODE_VERSION: 20
 
 on:
   push:
-    branches:
-      - '*'
     tags:
       - v*
-  pull_request:
 
 jobs:
-  test:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Check out the repository
         uses: actions/checkout@v4
         with:
-          # Number of commits to fetch. 0 indicates all history.
-          fetch-depth: 0
+          ref: master
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -36,10 +31,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run tests
-        shell: bash
-        run: |
-          ls -alt
+      - name: Run ESLint
+        run: pnpm lint
 
-          pnpm lint
-          pnpm test
+      - name: Run tests
+        run: pnpm test
+
+      - name: Pack files
+        run: pnpm pack && mv node-qunit-puppeteer-*.tgz node-qunit-puppeteer.tgz
+
+      - name: Publish to NPM
+        run: pnpm publish node-qunit-puppeteer.tgz --access=public --non-interactive
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
