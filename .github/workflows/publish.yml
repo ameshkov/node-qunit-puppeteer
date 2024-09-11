@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+          registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
         run: pnpm install
@@ -41,6 +42,6 @@ jobs:
         run: pnpm pack && mv node-qunit-puppeteer-*.tgz node-qunit-puppeteer.tgz
 
       - name: Publish to NPM
-        run: pnpm publish node-qunit-puppeteer.tgz --access=public
+        run: npm publish node-qunit-puppeteer.tgz --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
