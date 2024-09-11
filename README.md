@@ -19,10 +19,20 @@ node-qunit-puppeteer <URL> [<timeout>] [<puppeteerArgs>]
 - `<timeout>` - (optional) test run timeout in milliseconds. Default is 30000.
 - `<puppeteerArgs>` - (optional) Chrome command-line arguments. Default is "--allow-file-access-from-files".
 
+#### Chrome headless
+
+Defaults to 'old', as that was the previous behaviour in chrome.
+
+To toggle use `--headless=new` flag, add `--chrome-headless-new` to cli arguments.
+or `chromeHeadlessNew: true` to qunitArgs.
+
 #### Examples
 
 `node-qunit-puppeteer https://example.org/ 10000 "--allow-file-access-from-files --no-sandbox"`
+
 `node-qunit-puppeteer ./test/test-runner.html 10000 "--allow-file-access-from-files --no-sandbox"`
+
+`node-qunit-puppeteer ./test/test-runner.html 10000 "--chrome-headless-new"`
 
 ### Node module
 
@@ -97,6 +107,49 @@ runQunitPuppeteer(qunitArgs)
   .catch(ex => {
     console.error(ex);
   });
+```
+
+Override qunit timeout to use retries.
+Also override the headless browser launch timeout. 
+
+```javascript
+const path = require("path");
+const {
+  runQunitPuppeteer,
+  printResultSummary,
+  printFailedTests
+} = require("node-qunit-puppeteer");
+
+const qunitArgs = {
+  targetUrl: `file://${path.join(__dirname, "tests.html")}`,
+  redirectConsole: true,
+  ignoreTimeout: true,
+  puppeteerTimeout: 5000,
+}
+
+timeout = setTimeout(() => {
+  throw "test suite timed out after 120 seconds"
+}, 120)
+
+async function retry(retries) {
+  try {
+    const r = await runQunitPuppeteer(qunitArgs)
+    clearTimeout(timeout)
+    printResultSummary(r, console)
+    if (r.stats.failed > 0) {
+      printFailedTests(r, console)
+    }
+  } catch (err) {
+  console.warn(err)
+    if (retries <= 0) {
+      throw `Failed, no more retries: ${err}`
+  }
+    console.log("Run failed, retrying. Retries left:" + (retries - 1))
+    return retry(retries - 1)
+  }
+}
+
+retry(3)
 ```
 
 ## Output

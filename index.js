@@ -2,7 +2,10 @@ const puppeteer = require('puppeteer');
 // eslint-disable-next-line
 const colors = require('colors');
 
-const DEFAULT_TIMEOUT = 30000;
+const DEFAULT_QUNIT_TIMEOUT = 30000;
+const DEFAULT_PUPPETEER_TIMEOUT = 30000;
+const CHROME_HEADLESS_OLD = 'old';
+const CHROME_HEADLESS_NEW = 'new';
 const CALLBACKS_PREFIX = 'qunit_puppeteer_runner';
 const MODULE_START_CB = `${CALLBACKS_PREFIX}_moduleStart`;
 const MODULE_DONE_CB = `${CALLBACKS_PREFIX}_moduleDone`;
@@ -217,7 +220,6 @@ function ConsoleRedirector(page, console) {
  * @param {QunitPuppeteerArgs} qunitPuppeteerArgs - Configuration for the test runner
  */
 async function runQunitWithPage(page, qunitPuppeteerArgs) {
-  const timeout = qunitPuppeteerArgs.timeout || DEFAULT_TIMEOUT;
 
   // Redirect the page console if needed
   const consoleRedirector = qunitPuppeteerArgs.redirectConsole
@@ -226,8 +228,12 @@ async function runQunitWithPage(page, qunitPuppeteerArgs) {
   // Prepare the callbacks that will be called by the page
   const deferred = await exposeCallbacks(page);
 
-  // Run the timeout timer just in case
-  const timeoutId = setTimeout(() => { deferred.reject(new Error(`Test run could not finish in ${timeout}ms`)); }, timeout);
+  const timeout = qunitPuppeteerArgs.timeout || DEFAULT_QUNIT_TIMEOUT;
+  let timeoutId = null;
+  if(qunitPuppeteerArgs.ignoreTimeout !== true) {
+   // Run the timeout timer just in case
+    timeoutId = setTimeout(() => { deferred.reject(new Error(`Test run could not finish in ${timeout}ms`)); }, timeout);
+  }
 
   // Configuration for the in-page script (will be passed via evaluate to the page script)
   const evaluateArgs = {
@@ -320,19 +326,25 @@ async function runQunitWithPage(page, qunitPuppeteerArgs) {
     });
   }, evaluateArgs);
 
-  // Open the target page
-  await page.goto(qunitPuppeteerArgs.targetUrl);
+  try {
+    // Open the target page
+    await page.goto(qunitPuppeteerArgs.targetUrl);
 
-  // Wait for the test result
-  const qunitTestResult = await deferred.promise;
+    // Wait for the test result
+    const qunitTestResult = await deferred.promise;
 
-  if (consoleRedirector) {
-    await consoleRedirector.stop();
+    if (consoleRedirector) {
+      await consoleRedirector.stop();
+    }
+    return qunitTestResult;
+  } catch{
+        console.error(`Error while loading page in headless Chromium: ${ex}`);
+  } finally {
+    // Always clear the timeout
+    if(timeoutId) {
+      clearTimeout(timeoutId);
+    }
   }
-
-  // All good, clear the timeout
-  clearTimeout(timeoutId);
-  return qunitTestResult;
 }
 
 /**
@@ -354,8 +366,27 @@ async function runQunitWithBrowser(browser, qunitPuppeteerArgs) {
  * @param {QunitPuppeteerArgs} qunitPuppeteerArgs Configuration for the test runner
  */
 async function runQunitPuppeteer(qunitPuppeteerArgs) {
+  //chromium browser arguments
   const puppeteerArgs = qunitPuppeteerArgs.puppeteerArgs || ['--allow-file-access-from-files'];
-  const args = { args: puppeteerArgs };
+  // puppeteer browser launch timeout
+  const puppeteerTimeout =  qunitPuppeteerArgs.puppeteerTimeout || DEFAULT_PUPPETEER_TIMEOUT
+  //Chrome handle headless flag, default to old to not break current behaviour
+  let chromeHeadless = CHROME_HEADLESS_OLD;
+  const chromeHeadlessNewArg = puppeteerArgs.indexOf('--chrome-headless-new');
+  if(chromeHeadlessNewArg !== -1) {
+    chromeHeadless = CHROME_HEADLESS_NEW;
+    puppeteerArgs.splice(chromeHeadlessNewArg, 1);
+  } else {
+    if(qunitPuppeteerArgs.chromeHeadlessNew === true) {
+        chromeHeadless = CHROME_HEADLESS_NEW;
+    }
+  }
+
+  const args = {
+    args: puppeteerArgs,
+    headless: chromeHeadless,
+    timeout: puppeteerTimeout,
+  };
   const browser = await puppeteer.launch(args);
 
   try {
