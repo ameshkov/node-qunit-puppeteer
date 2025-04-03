@@ -17,7 +17,7 @@
     },
     "dependencies": {
         "colors": "^1.4.0",
-        "puppeteer": "^23.3.0"
+        "puppeteer": "^24.5.0"
     },
     "keywords": [
         "qunit",
