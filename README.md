@@ -4,20 +4,47 @@
 
 > A simple node module for running qunit tests with [headless Chromium](https://github.com/GoogleChrome/puppeteer).
 
-There is a common issue with PhantomJS failing with ES6 code, and the logical solution is to use Chrome Puppeteer instead.
+There is a common issue with PhantomJS failing with ES6 code,
+and the logical solution is to use Chrome Puppeteer instead.
+
+## Development
+
+> Make sure you have installed [Node.js] v22 or later
+> and [pnpm] v10 or later.
+
+### Install dependencies
+
+```bash
+pnpm install
+```
+
+### Run tests
+
+```bash
+pnpm test
+```
+
+### Run linter
+
+```bash
+pnpm lint
+```
+
+[Node.js]: https://nodejs.org/en/download
+[pnpm]: https://pnpm.io/installation
 
 ## Usage
 
 ### Command-line utility
 
-```
+```bash
 npm install -g node-qunit-puppeteer
 node-qunit-puppeteer <URL> [<timeout>] [<puppeteerArgs>]
 ```
 
-- `<URL>` - the address (or filepath) of the qunit HTML test page.
-- `<timeout>` - (optional) test run timeout in milliseconds. Default is 30000.
-- `<puppeteerArgs>` - (optional) Chrome command-line arguments. Default is "--allow-file-access-from-files".
+- `<URL>` — the address (or filepath) of the qunit HTML test page.
+- `<timeout>` — (optional) test run timeout in milliseconds. Default is 30000.
+- `<puppeteerArgs>` — (optional) Chrome command-line arguments. Default is "--allow-file-access-from-files".
 
 #### Examples
 
@@ -28,15 +55,24 @@ node-qunit-puppeteer <URL> [<timeout>] [<puppeteerArgs>]
 
 - npm: `npm install node-qunit-puppeteer --save-dev`
 - yarn: `yarn add node-qunit-puppeteer --dev`
+- pnpm: `pnpm add node-qunit-puppeteer --save-dev`
 
 #### Exported functions
 
-- `async function runQunitPuppeteer(qunitPuppeteerArgs)` -- Opens the specified HTML page in a Chromium puppeteer and captures results of a test run. Returns an object with information on every module/test run.
-- `function printOutput(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints it to console with identation and colors.
-- `function printResultSummary(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints a summary to console with identation and colors.
-- `function printFailedTests(qunitResult, console)` -- Takes the output of runQunitPuppeteer and prints failed test(s) information to console with identation and colors.
-- `async function runQunitWithBrowser(browser, qunitPuppeteerArgs)` -- Runs the specified HTML page in the `puppeteer.Browser` instance. You might want to use this if you need to use a different puppeteer version or if you need to apply some additional logic on top of it.
-- `async function runQunitWithPage(page, qunitPuppeteerArgs)` -- Runs the specified HTML page in the `puppeteer.Page` instance. Just like the previous function, you may want to use it if you need to use a different puppeteer version.
+- `async function runQunitPuppeteer(qunitPuppeteerArgs)` — opens the specified HTML page in a Chromium puppeteer
+  and captures results of a test run. Returns an object with information on every module/test run.
+- `function printOutput(qunitResult, console)` — takes the output of runQunitPuppeteer and prints it to console
+  with indentation and colors.
+- `function printResultSummary(qunitResult, console)` — takes the output of runQunitPuppeteer
+  and prints a summary to console with indentation and colors.
+- `function printFailedTests(qunitResult, console)` — takes the output of runQunitPuppeteer
+  and prints failed test(s) information to console with indentation and colors.
+- `async function runQunitWithBrowser(browser, qunitPuppeteerArgs)` — runs the specified HTML page
+  in the `puppeteer.Browser` instance. You might want to use this if you need to use a different puppeteer version
+  or if you need to apply some additional logic on top of it.
+- `async function runQunitWithPage(page, qunitPuppeteerArgs)` — runs the specified HTML page
+  in the `puppeteer.Page` instance. Just like the previous function,
+  you may want to use it if you need to use a different puppeteer version.
 
 #### Examples
 
